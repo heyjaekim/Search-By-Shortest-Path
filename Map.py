@@ -47,7 +47,23 @@ class Map:
         y = cell[1]
         return (0 <= x < self.size) and (0 <= y < self.size)
 
-    def print_solution(self):
-        print("Status: " + self.solution["Status"])
-        print("No of visited cells: " + str(self.solution["No of visited cells"]))
-        print("Path length: " + str(self.solution["Path length"]))
+    def visualize_maze(self, maze)
+        width = 700 / self.size
+        for x in range(0, self.size):
+            for y in range(0, self.size):
+                points = [(x * width, y * width), 
+                        ((x+1) * width, y*width), 
+                        ((x+1) * width, (y+1) * width),
+                        ((x * width), (y+1) * width)]
+                
+                if(x,y) == (0,0) or (x,y) == (self.size-1, self.size-1):
+                    maze.draw_polygon(points, 1, "Black", "00FF00")
+                elif (x,y) in self.solution["Path"]:
+                    maze.draw_polygon(points, 1, "Black", "White")
+                elif (x,y) in self.solution["Visited cells"] and (x,y) not in self.solution["Path"]:
+                    maze.draw_polygon(points, 1, "Black", color[1])
+                elif self.map[x,y] == 0:
+                    maze.draw_polygon(points, 1, "Black", "White")
+                else:
+                    maze.draw_polygon(points, 1, "Black", "#464646")
+                
