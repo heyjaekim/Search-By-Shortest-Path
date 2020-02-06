@@ -25,8 +25,8 @@ class Map:
         self.map[size - 1, size - 1] = 0
 
         # Dictionary of solution information
-        self.solution = {"Status": "n/a", "Visited cells": [], 
-                         "No of visited cells": "n/a", "Path": [],
+        self.solution = {"Status": "n/a", 
+                         "No of visited cells": "n/a",
                          "Path length": "n/a"}
 
     def neighborCells(self, cell):

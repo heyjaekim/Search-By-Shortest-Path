@@ -1,6 +1,7 @@
 import numpy
 import queue
 import math
+import Visual
 from Map import Map
 
 DEFAULT_SIZE = 100
@@ -42,8 +43,8 @@ class FindSolution:
             cell = lifoStack.get()
             if cell == self.goalCell:
                 path = self.render_path(parentSet)
-                return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "No of visited cells": len(cellsVisited), "Path": path, "Path length": len(path)}
+                return {"Status": "Found Path",
+                        "No of visited cells": len(cellsVisited), "Path length": len(path)}
 
             for dir in self.grid.neighborCells(cell):
                 if dir not in cellsVisited:
@@ -51,8 +52,8 @@ class FindSolution:
                     cellsVisited.add(dir)
                     lifoStack.put(dir)
 
-        return {"Status": "Path Not Found!!!", "Visited cells": cellsVisited,
-                "No of visited cells": len(cellsVisited), "Path": [], "Path length": "N/A"}
+        return {"Status": "Path Not Found!!!",
+                "No of visited cells": len(cellsVisited), "Path length": "N/A"}
 
     def bfs_algo(self):
         
@@ -67,8 +68,8 @@ class FindSolution:
             cell = stack.get()
             if cell == self.goalCell:
                 path = self.render_path(parentSet)
-                return {"Status": "Found Path", "Visited cells": visitedCells,
-                        "No of visited cells": len(visitedCells), "Path": path, "Path length": len(path)}
+                return {"Status": "Found Path",
+                        "No of visited cells": len(visitedCells),"Path length": len(path)}
 
             for dir in self.grid.neighborCells(cell):
                 if dir not in visitedCells:
@@ -76,48 +77,65 @@ class FindSolution:
                     visitedCells.add(dir)
                     stack.put(dir)
 
-        return {"Status": "Path Not Found!!!", "Visited cells": visitedCells,
-                "No of visited cells": len(visitedCells), "Path": [], "Path length": "N/A"}
+        return {"Status": "Path Not Found!!!",
+                "No of visited cells": len(visitedCells), "Path length": "N/A"}
 
-    def biDirSearch(self):
+    def isIntersecting(intersectionNode, s_fringe,t_fringe):
+        if intersectionNode == (-1,-1):
+            for c in s_fringe:
+                if(c in t_fringe):
+                    return c
+            return (-1,-1)
+    
+        else:
+            return intersectionNode
+
+    def biBFS(self):
         
-        s_visited = set()
-        t_visited = set()
-        s_queue = queue.Queue()
-        t_queue = queue.Queue()
-        s_parentDict = {}
-        t_parentDict = {}
+        s_visited = []
+        t_visited = []
+        s_visited.append(self.startCell)
+        t_visited.append(self.goalCell)
 
-        intersectNode = -1
+        s_fringe = []
+        t_fringe = []
+        s_fringe.append(self.startCell)
+        t_fringe.append(self.goalCell)
 
-        s_queue.put(self.startCell)
-        s_visited.add(self.startCell)
-        t_queue.put(self.goalCell)
-        t_visited.add(self.goalCell)
+        s_parent = {}
+        t_parent = {}
 
+        intersectNode = (-1, -1)
 
-        while not s_queue.empty() and not t_queue.empty():
-            s_cell = s_queue.get()
-            t_cell = t_queue.get()
-            if s_cell == t_cell : #here I am not sure it's correct to write like this
-                path = self.render_path_bidir(s_parentDict, s_cell)
-                return {"Status": "Found Path", "Visited cells": s_visited,
-                        "No of visited cells": len(s_visited), "Path": path, "Path length": len(path)}
+        while (s_fringe and t_fringe):
+            s_cell = s_fringe.pop(0)
+            t_cell = t_fringe.pop(0)
             
             for dir in self.grid.neighborCells(s_cell):
                 if dir not in s_visited:
-                    s_parentDict[dir] = s_cell
-                    s_visited.add(dir)
-                    s_queue.put(dir)
+                    s_parent[dir] = s_cell
+                    s_visited.append(dir)
+                    s_fringe.append(dir)
+            
+            intersectNode = FindSolution.isIntersecting(intersectNode, s_fringe, t_fringe)
             
             for dir in self.grid.neighborCells(t_cell):
                 if dir not in t_visited:
-                    t_parentDict[dir] = t_cell
-                    t_visited.add(dir)
-                    t_queue.put(dir)
+                    t_parent[dir] = t_cell
+                    t_visited.append(dir)
+                    t_fringe.append(dir)
 
-        return {"Status": "Found Path", "Visitedddd cells": s_visited,
-                        "No of visited cells": len(s_visited), "Path": [], "Path length": "N/A"}
+            intersectNode = FindSolution.isIntersecting(intersectNode, s_fringe, t_fringe)
+
+            if intersectNode != (-1, -1):
+                print("intersecting at cell: ")
+                print(intersectNode)
+                path = self.render_path_bidir(s_parent, intersectNode)
+                return {"Status": "Found Path",
+                        "No of visited cells": len(s_visited), "Path length": len(path)}
+
+        return {"Status": "Path Not Found!!!",
+                        "No of visited cells": len(s_visited), "Path length": "N/A"}
 
     def a_star_algo(self, heuristic):
         """
@@ -126,11 +144,11 @@ class FindSolution:
         """
         priorityQ = queue.PriorityQueue()
         parentCellSet = {}
-        totalcost = {}
+        mincost = {}
         cellsVisited = set()
 
         priorityQ.put((0, self.startCell))
-        totalcost[self.startCell] = 0
+        mincost[self.startCell] = 0
         cellsVisited.add(self.startCell)
 
         while not priorityQ.empty():
@@ -138,21 +156,21 @@ class FindSolution:
             cell = cell[1]
             if cell == self.goalCell:
                 path = self.render_path(parentCellSet)
-                return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "No of visited cells": len(cellsVisited), "Path": path, "Path length": len(path)}
+                return {"Status": "Found Path",
+                        "No of visited cells": len(cellsVisited), "Path length": len(path)}
 
             for dir in self.grid.neighborCells(cell):
-                newCost = totalcost[cell] + 1
+                newCost = mincost[cell] + 1
                 if dir not in cellsVisited:  # or new_cost < cost_so_far[next_cell]:
-                    totalcost[dir] = newCost
+                    mincost[dir] = newCost
                     parentCellSet[dir] = cell
                     cellsVisited.add(dir)
 
                     priority = newCost + self.findHeuristic(dir, heuristic)
                     priorityQ.put((priority, dir))
 
-        return {"Status": "Path Not Found!!!", "Visited cells": cellsVisited,
-                "No of visited cells": len(cellsVisited), "Path": [], "Path length": "N/A"}
+        return {"Status": "Path Not Found!!!",
+                "No of visited cells": len(cellsVisited), "Path length": "N/A"}
 
     def findHeuristic(self, cell, heuristic):
         (x1, y1) = cell
@@ -161,28 +179,6 @@ class FindSolution:
             return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
         elif heuristic == "manhattan":
             return abs(x1 - x2) + abs(y1 - y2)
-        
-def render_Maze():
-    global current_map
-    current_map = Map(int(input_size.get_text()), float(input_prob.get_text()))
-    update()
-
-#def update():
-
-
-def render_handler(maze):
-    current_map.visualize_maze(maze)
-
-def input_handler():
-    pass
-
-#def visualize_dfs():
-
-#def visualize_bfs():
-
-#def visualize_astar():
-
-
 
 current_map = Map(100, 0.2)
 
@@ -199,5 +195,5 @@ print("--------------------------------\nUsing A* Manhattan")
 current_map.solution = FindSolution(current_map).a_star_algo("manhattan")
 current_map.print_solution()
 print("--------------------------------\nUsing Bi Directional BFS")
-current_map.solution = FindSolution(current_map).biDirSearch()
+current_map.solution = FindSolution(current_map).biBFS()
 current_map.print_solution()
