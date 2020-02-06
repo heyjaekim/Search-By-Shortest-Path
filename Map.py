@@ -47,7 +47,15 @@ class Map:
         y = cell[1]
         return (0 <= x < self.size) and (0 <= y < self.size)
 
-    def visualize_maze(self, maze)
+    def print_map(self):
+        print(self.map)
+
+    def print_solution(self):
+        print("Status: " + self.solution["Status"])
+        print("No of visited cells: " + str(self.solution["No of visited cells"]))
+        print("Path length: " + str(self.solution["Path length"]))
+
+    def visualize_maze(self, maze):
         width = 700 / self.size
         for x in range(0, self.size):
             for y in range(0, self.size):

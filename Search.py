@@ -3,6 +3,8 @@ import queue
 import math
 from Map import Map
 
+DEFAULT_SIZE = 100
+
 class FindSolution:
     def __init__(self, grid):
         self.grid = grid
@@ -16,6 +18,14 @@ class FindSolution:
         current = pathDict[self.goalCell]
         path = []
         while current != (0, 0):
+            path += (current,)
+            current = pathDict[current]
+        return path[::-1]
+
+    def render_path_bidir(self, pathDict, position):
+        current = pathDict[position]
+        path = []
+        while current != (0,0):
             path += (current,)
             current = pathDict[current]
         return path[::-1]
@@ -70,15 +80,15 @@ class FindSolution:
                 "No of visited cells": len(visitedCells), "Path": [], "Path length": "N/A"}
 
     def biDirSearch(self):
- 
-        s_queue = queue.Queue()
-        t_queue = queue.Queue()
-
+        
         s_visited = set()
         t_visited = set()
+        s_queue = queue.Queue()
+        t_queue = queue.Queue()
+        s_parentDict = {}
+        t_parentDict = {}
 
         intersectNode = -1
-        parentDict = {}
 
         s_queue.put(self.startCell)
         s_visited.add(self.startCell)
@@ -88,21 +98,21 @@ class FindSolution:
 
         while not s_queue.empty() and not t_queue.empty():
             s_cell = s_queue.get()
-            g_cell = t_queue.get()
-            if s_cell == g_cell :
-                path = self.render_path(parentDict)
+            t_cell = t_queue.get()
+            if s_cell == t_cell : #here I am not sure it's correct to write like this
+                path = self.render_path_bidir(s_parentDict, s_cell)
                 return {"Status": "Found Path", "Visited cells": s_visited,
                         "No of visited cells": len(s_visited), "Path": path, "Path length": len(path)}
             
             for dir in self.grid.neighborCells(s_cell):
                 if dir not in s_visited:
-                    parentDict[dir] = s_cell
+                    s_parentDict[dir] = s_cell
                     s_visited.add(dir)
                     s_queue.put(dir)
             
-            for dir in self.grid.neighborCells(g_cell):
-                if dir not in s_visited:
-                    parentDict[dir] = g_cell
+            for dir in self.grid.neighborCells(t_cell):
+                if dir not in t_visited:
+                    t_parentDict[dir] = t_cell
                     t_visited.add(dir)
                     t_queue.put(dir)
 
@@ -153,10 +163,11 @@ class FindSolution:
             return abs(x1 - x2) + abs(y1 - y2)
         
 def render_Maze():
-    global current_map = Map(int(input_size.get_text()), float(input_prob.get_text()))
+    global current_map
+    current_map = Map(int(input_size.get_text()), float(input_prob.get_text()))
     update()
-    
-def update():
+
+#def update():
 
 
 def render_handler(maze):
@@ -165,11 +176,11 @@ def render_handler(maze):
 def input_handler():
     pass
 
-def visualize_dfs():
+#def visualize_dfs():
 
-def visualize_bfs():
+#def visualize_bfs():
 
-def visualize_astar():
+#def visualize_astar():
 
 
 
