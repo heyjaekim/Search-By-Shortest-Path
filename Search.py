@@ -4,7 +4,7 @@ import math
 import time
 from Map import Map
 
-class FindSolution:
+class Search:
     def __init__(self, grid):
         self.grid = grid
         self.time = 0
@@ -29,6 +29,14 @@ class FindSolution:
             current = pathDict[current]
         return path[::-1]
 
+    def render_path_bidir_fromEnd(self, pathDict, position):
+        current = pathDict[position]
+        path = []
+        while current != (self.grid.size-1, self.grid.size-1):
+            path += (current,)
+            current = pathDict[current]
+        return path[::+1]
+
     def dfs_algo(self):
 
         dfsStack = queue.LifoQueue()
@@ -44,7 +52,8 @@ class FindSolution:
             if cell == self.goalCell:
                 path = self.render_path(prev_cells)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "No of visited cells": len(cellsVisited), "Path": path, "Path length": len(path),
+                        "# of Visited Cells": len(cellsVisited), "Path length": len(path), "Path length from Goal": "", 
+                        "Path": path, "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
             for dir in self.grid.neighborCells(cell):
@@ -53,9 +62,10 @@ class FindSolution:
                     cellsVisited.add(dir)
                     dfsStack.put(dir)
 
-        return {"Status": "Path Not Found!!!", "Visited cells": cellsVisited,
-                "No of visited cells": len(cellsVisited), "Path length": "N/A", "Path": [],
-                "Max fringe size": "n/a"}
+        return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
+                "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
+                "Path": [], "Path from Goal": [], "Intersecting Cell": (),
+                "Max fringe size": "N/A"}
 
     def bfs_algo(self):
 
@@ -72,8 +82,9 @@ class FindSolution:
             if cell == self.goalCell:
                 path = self.render_path(parentSet)
                 return {"Status": "Found Path", "Visited cells": visitedCells,
-                "No of visited cells": len(visitedCells), "Path": path,
-                        "Path length": len(path), "Max fringe size": (maxFringe)}
+                "# of Visited Cells": len(visitedCells), "Path": path, "Path length": len(path), "Path length from Goal": "", 
+                        "Path from Goal": [], "Intersecting Cell": (),
+                        "Max fringe size": (maxFringe)}
 
             for dir in self.grid.neighborCells(cell):
                 if dir not in visitedCells:
@@ -81,8 +92,9 @@ class FindSolution:
                     visitedCells.add(dir)
                     stack.put(dir)
 
-        return {"Status": "Path Not Found!!!", "Visited cells": visitedCells,
-                "No of visited cells": len(visitedCells), "Path length": "N/A", "Path": [],
+        return {"Status": "Unable to find the path", "Visited cells": visitedCells,
+                "# of Visited Cells": len(visitedCells), "Path length": "N/A", "Path length from Goal": "N/A", 
+                "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
     def isIntersecting(intersectionNode, s_fringe, t_fringe):
@@ -124,7 +136,7 @@ class FindSolution:
                     s_visited.append(dir)
                     s_fringe.append(dir)
 
-            intersectNode = FindSolution.isIntersecting(intersectNode, s_fringe, t_fringe)
+            intersectNode = Search.isIntersecting(intersectNode, s_fringe, t_fringe)
 
             for dir in self.grid.neighborCells(t_cell):
                 if dir not in t_visited:
@@ -132,17 +144,21 @@ class FindSolution:
                     t_visited.append(dir)
                     t_fringe.append(dir)
 
-            intersectNode = FindSolution.isIntersecting(intersectNode, s_fringe, t_fringe)
+            intersectNode = Search.isIntersecting(intersectNode, s_fringe, t_fringe)
 
             if intersectNode != (-1, -1):
                 print("intersecting at cell:", intersectNode)
                 path = self.render_path_bidir(s_parent, intersectNode)
+                path2 = self.render_path_bidir_fromEnd(t_parent, intersectNode)
+                s_visited.extend(t_visited)
                 return {"Status": "Found Path", "Visited cells": s_visited,
-                        "No of visited cells": len(s_visited), "Path length": len(path), "Path": path,
+                        "# of Visited Cells": len(s_visited), "Path length": len(path), "Path length from Goal": len(path2), 
+                        "Path": path, "Path from Goal": path2, "Intersecting Cell": intersectNode,
                         "Max fringe size": (maxFringe)}
 
-        return {"Status": "Path Not Found!!!", "Visited cells": s_visited,
-                "No of visited cells": len(s_visited), "Path length": "N/A", "Path": [],
+        return {"Status": "Unable to find the path", "Visited cells": s_visited,
+                "# of Visited Cells": len(s_visited), "Path length": "N/A", "Path length from Goal": "N/A", 
+                "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
     def a_star_algo(self, heuristic):
@@ -168,7 +184,8 @@ class FindSolution:
             if cell == self.goalCell:
                 path = self.render_path(parentCellSet)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "No of visited cells": len(cellsVisited), "Path length": len(path), "Path": path,
+                        "# of Visited Cells": len(cellsVisited), "Path": path, "Path length": len(path), "Path length from Goal": "", 
+                        "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
             for dir in self.grid.neighborCells(cell):
@@ -182,8 +199,9 @@ class FindSolution:
                     priority = newCost + self.findHeuristic(dir, heuristic)
                     priorityQ.put((priority, dir))
 
-        return {"Status": "Path Not Found!!!", "Visited cells": cellsVisited,
-                "No of visited cells": len(cellsVisited), "Path length": "N/A", "Path": [],
+        return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
+                "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "N/A", 
+                "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
     def findHeuristic(self, cell, heuristic):
