@@ -1,6 +1,12 @@
 import numpy
 import queue
 import math
+try:
+    import simplegui
+except ImportError:
+    import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
+
+FRAME_WIDTH = 700
 
 class Map:
     def __init__(self, size, prob):
@@ -26,8 +32,11 @@ class Map:
 
         # Dictionary of solution information
         self.solution = {"Status": "n/a", 
+                         "Visited cells": [],
                          "No of visited cells": "n/a",
-                         "Path length": "n/a"}
+                         "Path": [],
+                         "Path length": "n/a",
+                         "Max fringe size": "n/a"}
 
     def neighborCells(self, cell):
         
@@ -54,24 +63,27 @@ class Map:
         print("Status: " + self.solution["Status"])
         print("No of visited cells: " + str(self.solution["No of visited cells"]))
         print("Path length: " + str(self.solution["Path length"]))
+        print("Max fringe size: "  + str(self.solution["Max fringe size"]))
 
-    def visualize_maze(self, maze):
-        width = 700 / self.size
+    def visualize_maze(self, maze, color):
+        width = FRAME_WIDTH / self.size
         for x in range(0, self.size):
             for y in range(0, self.size):
-                points = [(x * width, y * width), 
-                        ((x+1) * width, y*width), 
-                        ((x+1) * width, (y+1) * width),
-                        ((x * width), (y+1) * width)]
+                points = [(x * width, y * width), ((x + 1) * width, y * width),
+                          ((x + 1) * width, (y + 1) * width), ((x * width), (y + 1) * width)]
                 
                 if(x,y) == (0,0) or (x,y) == (self.size-1, self.size-1):
                     maze.draw_polygon(points, 1, "Black", "00FF00")
+                
                 elif (x,y) in self.solution["Path"]:
-                    maze.draw_polygon(points, 1, "Black", "White")
-                elif (x,y) in self.solution["Visited cells"] and (x,y) not in self.solution["Path"]:
+                    maze.draw_polygon(points, 1, "Black", color[0])
+                
+                elif (x, y) in self.solution["Visited cells"] and (x, y) not in self.solution["Path"]:
                     maze.draw_polygon(points, 1, "Black", color[1])
+                
                 elif self.map[x,y] == 0:
                     maze.draw_polygon(points, 1, "Black", "White")
+                
                 else:
                     maze.draw_polygon(points, 1, "Black", "#464646")
                 
