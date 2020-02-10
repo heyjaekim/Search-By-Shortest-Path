@@ -6,7 +6,7 @@ from Map import Map
 
 class Search:
     def __init__(self, grid):
-        self.grid = grid
+        self.map = grid
         self.time = 0
         self.result = "n/a"
         self.startCell = (0, 0)
@@ -56,7 +56,7 @@ class Search:
                         "Path": path, "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
-            for dir in self.grid.neighborCells(cell):
+            for dir in self.map.neighborCells(cell):
                 if dir not in cellsVisited:
                     prev_cells[dir] = cell
                     cellsVisited.add(dir)
@@ -66,31 +66,70 @@ class Search:
                 "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "N/A"}
+    
+    def checkValidity(self, cell, visitedCell):
+        dim = self.map.shape[0]
+
+        if cell[0] == -1 or cell[1] == -1 or cell[0] == dim or cell[1] == dim:
+            return False
+        elif self.map[cell[0],cell[1]] == 0 or cell in visitedCell:
+            return False
+        
+        return True
+
+        
+    def trackback_neighborCells(self, goalCell, visited, x, y):
+        prevCells = list()
+        cell = list()
+        path = list()
+
+        cell.append((x+1, y))
+        path.append((goalCell - cell[0][0]) + (goalCell - cell[0][1]))
+        
+        cell.append((x, y+1))
+        path.append((goalCell - cell[1][0]) + (goalCell - cell[1][1]))
+        
+        cell.append((x-1, y))
+        path.append((goalCell - cell[2][0]) + (goalCell - cell[2][1]))
+        
+        cell.append((x, y-1))
+        path.append((goalCell - cell[3][0]) + (goalCell - cell[3][1]))
+        
+        for i in range(4):
+           low = path.index(min(path))
+           path.pop(low)
+           currentCell = cell.pop(low)
+           if(Search.checkValidity(current_map, currentCell, visited)) :
+               prevCells.append(currentCell)
+        prevCells.reverse()
+        return prevCells
+        
 
     def improved_dfs_algo(self):
-        dfsFringe = []
+        dfsFringe = list()
         dfsFringe.append(self.startCell)
         
         prev_cells = {}
-        cellsVisited = set()
-        cellsVisited.add(self.startCell)
+        cellsVisited = list()
+        cellsVisited.append(self.startCell)
         maxFringe = 0
 
-        while not dfsFringe.empty():
-            cell = dfsFringe.get()
-            maxFringe = max(maxFringe, dfsFringe.qsize())
+        while dfsFringe:
+            cell = dfsFringe.pop()
+            maxFringe = max(maxFringe, len(dfsFringe))
             if cell == self.goalCell:
                 path = self.render_path(prev_cells)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
                         "# of Visited Cells": len(cellsVisited), "Path length": len(path), "Path length from Goal": "", 
                         "Path": path, "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
-
-            for dir in self.grid.neighborCells(cell):
-                if dir not in cellsVisited:
+            children = Search.trackback_neighborCells(self.map, self.goalCell[0] - 1, cellsVisited, cell[0], cell[1])
+            if children:
+                for dir in children:
+                    #if dir not in cellsVisited:
                     prev_cells[dir] = cell
-                    cellsVisited.add(dir)
-                    dfsFringe.put(dir)
+                    cellsVisited.append(dir)
+                    dfsFringe.append(dir)
 
         return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
                 "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
@@ -116,7 +155,7 @@ class Search:
                         "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
-            for dir in self.grid.neighborCells(cell):
+            for dir in self.map.neighborCells(cell):
                 if dir not in visitedCells:
                     parentSet[dir] = cell
                     visitedCells.add(dir)
@@ -160,7 +199,7 @@ class Search:
             t_cell = t_fringe.pop(0)
             maxFringe = max(maxFringe, max(len(s_fringe), len(t_fringe)))
 
-            for dir in self.grid.neighborCells(s_cell):
+            for dir in self.map.neighborCells(s_cell):
                 if dir not in s_visited:
                     s_parent[dir] = s_cell
                     s_visited.append(dir)
@@ -168,7 +207,7 @@ class Search:
 
             intersectNode = Search.isIntersecting(intersectNode, s_fringe, t_fringe)
 
-            for dir in self.grid.neighborCells(t_cell):
+            for dir in self.map.neighborCells(t_cell):
                 if dir not in t_visited:
                     t_parent[dir] = t_cell
                     t_visited.append(dir)
@@ -218,7 +257,7 @@ class Search:
                         "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
-            for dir in self.grid.neighborCells(cell):
+            for dir in self.map.neighborCells(cell):
                 newCost = mincost[cell] + 1
                 # or new_cost < cost_so_far[next_cell]:
                 if dir not in cellsVisited:
@@ -242,9 +281,24 @@ class Search:
         elif heuristic == "manhattan":
             return abs(x1 - x2) + abs(y1 - y2)
 
-"""
+
 current_map = Map(100, 0.2)
 
+print("--------------------------------\nUsing DFS")
+start_time = time.time()
+current_map.results = Search(current_map).dfs_algo()
+current_time = round(time.time() - start_time, 4)
+current_map.print_results()
+print("Time: ", current_time)
+
+print("--------------------------------\nUsing IDFS")
+start_time = time.time()
+current_map.results = Search(current_map).improved_dfs_algo()
+current_time = round(time.time() - start_time, 4)
+current_map.print_results()
+print("Time: ", current_time)
+
+"""
 #algoLists = ["BFS", "DFS", "A_Manhattan", "A_Euclidean", "BD_BFS"]
 #factsLists = ["path_length", "time", "nodes_explored", "max_fringe_size"]
 

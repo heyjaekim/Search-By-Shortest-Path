@@ -29,15 +29,15 @@ class Map:
         self.map[size - 1, size - 1] = 0
 
         # Dictionary of results information
-        self.results = {"Status": "",
+        self.results = {"Status": "n/a",
                          "Visited cells": [],
-                         "# of Visited Cells": "",
+                         "# of Visited Cells": "n/a",
                          "Path": [],
                          "Path from Goal": [],
-                         "Path length": "",
-                         "Path length from Goal": "",
+                         "Path length": "n/a",
+                         "Path length from Goal": "n/a",
                          "Intersecting Cell": (),
-                         "Max fringe size": ""}
+                         "Max fringe size": "n/a"}
 
     def neighborCells(self, cell):
 
@@ -60,7 +60,7 @@ class Map:
     def print_map(self):
         print(self.map)
 
-    def print_solution(self):
+    def print_results(self):
         print("Status: " + self.results["Status"])
         print("# of Visited Cells: " +
               str(self.results["# of Visited Cells"]))
