@@ -67,6 +67,36 @@ class Search:
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "N/A"}
 
+    def improved_dfs_algo(self):
+        dfsFringe = []
+        dfsFringe.append(self.startCell)
+        
+        prev_cells = {}
+        cellsVisited = set()
+        cellsVisited.add(self.startCell)
+        maxFringe = 0
+
+        while not dfsFringe.empty():
+            cell = dfsFringe.get()
+            maxFringe = max(maxFringe, dfsFringe.qsize())
+            if cell == self.goalCell:
+                path = self.render_path(prev_cells)
+                return {"Status": "Found Path", "Visited cells": cellsVisited,
+                        "# of Visited Cells": len(cellsVisited), "Path length": len(path), "Path length from Goal": "", 
+                        "Path": path, "Path from Goal": [], "Intersecting Cell": (),
+                        "Max fringe size": (maxFringe)}
+
+            for dir in self.grid.neighborCells(cell):
+                if dir not in cellsVisited:
+                    prev_cells[dir] = cell
+                    cellsVisited.add(dir)
+                    dfsFringe.put(dir)
+
+        return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
+                "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
+                "Path": [], "Path from Goal": [], "Intersecting Cell": (),
+                "Max fringe size": "N/A"}
+
     def bfs_algo(self):
 
         stack = queue.Queue()
