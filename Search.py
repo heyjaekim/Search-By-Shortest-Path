@@ -32,7 +32,7 @@ class Search:
     def render_path_bidir_fromEnd(self, pathDict, position):
         current = pathDict[position]
         path = []
-        while current != (self.grid.size-1, self.grid.size-1):
+        while current != (self.map.size-1, self.map.size-1):
             path += (current,)
             current = pathDict[current]
         return path[::+1]
