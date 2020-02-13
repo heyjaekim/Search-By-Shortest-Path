@@ -32,7 +32,7 @@ class Search:
     def render_path_bidir_fromEnd(self, pathDict, position):
         current = pathDict[position]
         path = []
-        while current != (self.grid.size-1, self.grid.size-1):
+        while current != (self.map.size-1, self.map.size-1):
             path += (current,)
             current = pathDict[current]
         return path[::+1]
@@ -253,7 +253,8 @@ class Search:
             if cell == self.goalCell:
                 path = self.render_path(parentCellSet)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "# of Visited Cells": len(cellsVisited), "Path": path, "Path length": len(path), "Path length from Goal": "", 
+                        "# of Visited Cells": len(cellsVisited), 
+                        "Path": path, "Path length": len(path), "Path length from Goal": "", 
                         "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
 
@@ -269,7 +270,8 @@ class Search:
                     priorityQ.put((priority, dir))
 
         return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
-                "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "N/A", 
+                "# of Visited Cells": len(cellsVisited), 
+                "Path length": "N/A", "Path length from Goal": "N/A", 
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
@@ -281,7 +283,7 @@ class Search:
         elif heuristic == "manhattan":
             return abs(x1 - x2) + abs(y1 - y2)
 
-
+'''
 current_map = Map(100, 0.2)
 
 print("--------------------------------\nUsing DFS")
@@ -337,3 +339,4 @@ current_time = round(time.time() - start_time, 4)
 current_map.print_solution()
 print("Time: ", current_time)
 """
+'''

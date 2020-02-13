@@ -16,15 +16,15 @@ DEFAULT_PROB = 0.2
 G_COLORS = [["#F44336", "#FFCDD2"], ["#2196F3", "#BBDEFB"], ["#4CAF50", "#C8E6C9"],
               ["#FFAA00", "#FFDEAD"], ["#F540FF", "#F8BBEE", "#2DF7D3", "FFF700"]]
 color = []
-
 global a_map 
-                    
+
 def generate_map():
+    global a_map
     a_map = Map(int(input_size.get_text()), float(input_probability.get_text()))
     update()
 
 def generate_path(maze):
-    a_map.visualize_maze(maze, color, FRAME_WIDTH)
+    a_map.visualize_maze(maze, color)
 
 def input_handler():
     pass
@@ -63,15 +63,6 @@ def path_biBFS():
     a_map.results = Search(a_map).biBFS()
     currentAlgo.set_text("Algorithm used: BI BFS")
     update()
-
-"""
-def path_biBFS_fromEnd():
-    global a_map, color
-    color = COLOR_LIST[5]
-    a_map.results = Findresults(a_map).biBFS_fromEnd()
-    currentAlgo.set_text("Algorithm used: BI BFS")
-    update()
-"""
 
 def update():
     currentStatus.set_text("STATUS: " + a_map.results["Status"])
