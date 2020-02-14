@@ -21,7 +21,6 @@ class Map:
         # Generate a matrix that is uniformly distrubited
         self.map = numpy.random.uniform(size=[size, size])
         self.map = (self.map < prob).astype(int)
-        numpy.transpose(self.map)
         # fix value for start and end
         self.map[0, 0] = 0
         self.map[size - 1, size - 1] = 0
@@ -73,19 +72,18 @@ class Map:
         path.append((goal - cells[3][0]) + (goal - cells[3][1]))
         
         for i in range(4):
-            low = path.index(min(path))
-            path.pop(low)
-            currentCell = cells.pop(low)
+            pth = path.index(min(path))
+            path.pop(pth)
+            currentCell = cells.pop(pth)
             if(self.validPath(currentCell, visited)) :
                 children.append(currentCell)
         children.reverse()
         return children
     
     def validPath(self, cell, visited):
-        dim = self.size 
         x = cell[0]
         y = cell[1]
-        if x == -1 or y == -1 or x == dim or y == dim:
+        if x == -1 or y == -1 or x == self.size or y == self.size:
             return False
         elif self.map[x,y] == 1 or cell in visited:
             return False

@@ -78,8 +78,8 @@ p = 0.2
 a_map = Map(dim, p)
 # Create frame and control UI
 frame = simplegui.create_frame('Part 1', width, width)
-frame.add_button("Rendering Maze", renderingMaze, 100)
 frame.set_draw_handler(drawingPath)
+frame.add_button("Rendering Maze", renderingMaze, 100)
 frame.add_label("")
 frame.add_label("Dimension Size: "+str(dim))
 frame.add_label("Probability: " + str(p))

@@ -19,7 +19,7 @@ class Search:
         while current != (0, 0):
             path += (current,)
             current = pathDict[current]
-        return path[::-1]
+        return path
 
     def render_path_bidir(self, pathDict, position):
         current = pathDict[position]
@@ -27,7 +27,7 @@ class Search:
         while current != (0, 0):
             path += (current,)
             current = pathDict[current]
-        return path[::-1]
+        return path
 
     def render_path_bidir_fromEnd(self, pathDict, position):
         current = pathDict[position]
