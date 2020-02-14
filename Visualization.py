@@ -6,94 +6,100 @@ from Search import Search
 
 try:
     import simplegui
-
 except ImportError:
     import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
 
-FRAME_WIDTH = 700
-DEFAULT_SIZE = 100
-DEFAULT_PROB = 0.2
-G_COLORS = [["#F44336", "#FFCDD2"], ["#2196F3", "#BBDEFB"], ["#4CAF50", "#C8E6C9"],
-              ["#FFAA00", "#FFDEAD"], ["#F540FF", "#F8BBEE", "#2DF7D3", "FFF700"]]
+G_COLORS = [["#FFAA00", "#FFCDD2"], 
+            ["#2196F3", "#BBDEFB"], 
+            ["#4CAF50", "#C8E6C9"],
+            ["#FFAA00", "#FFDEAD"], 
+            ["#F540FF", "#F8BBEE", "#FFAA00", "#04db41"]]
 color = []
-global a_map 
 
-def generate_map():
+def renderingMaze():
     global a_map
-    a_map = Map(int(input_size.get_text()), float(input_probability.get_text()))
+    a_map = Map(dim, p)
     update()
 
-def generate_path(maze):
+def drawingPath(maze):
     a_map.visualize_maze(maze, color)
 
 def input_handler():
     pass
 
-def path_dfs():
+def pathDFS():
     global color
     color = G_COLORS[0]    
-    a_map.results = Search(a_map).dfs_algo()
-    currentAlgo.set_text("Algorithm used: DFS")
+    a_map.results = Search(a_map).dfsAlgo()
     update()
 
-def path_bfs():
+def pathBFS():
     global color
     color = G_COLORS[1]
-    a_map.results = Search(a_map).bfs_algo()
-    currentAlgo.set_text("Algorithm used: BFS")
+    a_map.results = Search(a_map).bfsAlgo()
     update()
 
-def path_euclidean():
+def pathEuclidean():
     global color
     color = G_COLORS[2]
-    a_map.results = Search(a_map).a_star_algo("euclidean")
-    currentAlgo.set_text("Algorithm used: A* Euclidean")
+    a_map.results = Search(a_map).A_star("euclidean")
     update()
 
-def path_manhattan():
+def pathManhattan():
     global color
     color = G_COLORS[3]
-    a_map.results = Search(a_map).a_star_algo("manhattan")
-    currentAlgo.set_text("Algorithm used: A* Manhattan")
+    a_map.results = Search(a_map).A_star("manhattan")
     update()
 
 def path_biBFS():
     global color
     color = G_COLORS[4]
     a_map.results = Search(a_map).biBFS()
-    currentAlgo.set_text("Algorithm used: BI BFS")
+    update()
+
+def path_IDFS():
+    global color
+    color = G_COLORS[0]
+    a_map.results = Search(a_map).improvedDFS()
     update()
 
 def update():
-    currentStatus.set_text("STATUS: " + a_map.results["Status"])
+    currentStatus.set_text("PATH STATUS: " + a_map.results["Status"])
     currentLength.set_text("PATH LENGTH: " + str(a_map.results["Path length"]))
-    currentVisitedCells.set_text("NO OF VISITED CELLS: " + str(a_map.results["# of Visited Cells"]))
+    currentVisitedCells.set_text("# OF VISITED CELLS: " + str(a_map.results["# of Visited Cells"]))
+    if a_map.results["Intersecting Cell"]:
+        currentIntersectiong.set_text("INTERSECTING CELL: " + str(a_map.results["Intersecting Cell"]))
+    else:
+        currentIntersectiong.set_text("INERSECTIING CELL: " )
+width = 700
+dim = 100
+p = 0.2
 
-a_map = Map(DEFAULT_SIZE, DEFAULT_PROB)
-
+a_map = Map(dim, p)
 # Create frame and control UI
-frame = simplegui.create_frame('Assignment 1', FRAME_WIDTH, FRAME_WIDTH)
-frame.add_button("Generate Map", generate_map, 100)
-frame.set_draw_handler(generate_path)
-input_size = frame.add_input('Size',input_handler, 100)
-input_size.set_text(str(DEFAULT_SIZE))
-input_probability = frame.add_input("Probability", input_handler, 100)
-input_probability.set_text(str(DEFAULT_PROB))
+frame = simplegui.create_frame('Part 1', width, width)
+frame.add_button("Rendering Maze", renderingMaze, 100)
+frame.set_draw_handler(drawingPath)
+frame.add_label("")
+frame.add_label("Dimension Size: "+str(dim))
+frame.add_label("Probability: " + str(p))
+
 
 # Algorithms
 frame.add_label("")
 frame.add_label("Algorithm")
-frame.add_button("DFS", path_dfs, 100)
-frame.add_button("BFS", path_bfs, 100)
-frame.add_button("A* Euclidean", path_euclidean, 100)
-frame.add_button("A* Manhattan", path_manhattan, 100)
+frame.add_button("DFS", pathDFS, 100)
+frame.add_button("BFS", pathBFS, 100)
+frame.add_button("A* Euclidean", pathEuclidean, 100)
+frame.add_button("A* Manhattan", pathManhattan, 100)
 frame.add_button("BI BFS", path_biBFS, 100)
+frame.add_button("IDFS", path_IDFS, 100)
 
 # Display status
 frame.add_label("")
-currentAlgo = frame.add_label("Algorithm used: N/A")
-currentStatus = frame.add_label("STATUS: N/A")
-currentVisitedCells = frame.add_label("NO OF VISITED CELLS: N/A")
+currentStatus = frame.add_label("PATH STATUS: N/A")
 currentLength = frame.add_label("PATH LENGTH: N/A")
+currentVisitedCells = frame.add_label("# OF VISITED CELLS: N/A")
+currentIntersectiong = frame.add_label("INTERSECTING CELL: N/A")
 
 frame.start()

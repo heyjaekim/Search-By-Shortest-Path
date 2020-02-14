@@ -5,12 +5,12 @@ import time
 from Map import Map
 
 class Search:
-    def __init__(self, grid):
-        self.map = grid
+    def __init__(self, maze):
+        self.map = maze
         self.time = 0
         self.result = "n/a"
         self.startCell = (0, 0)
-        self.goalCell = (grid.size - 1, grid.size - 1)
+        self.goalCell = (maze.size - 1, maze.size - 1)
 
     def render_path(self, pathDict):
         # Build a path (list) from a dictionary of parent cell -> child cell
@@ -37,8 +37,7 @@ class Search:
             current = pathDict[current]
         return path[::+1]
 
-    def dfs_algo(self):
-
+    def dfsAlgo(self):
         dfsStack = queue.LifoQueue()
         dfsStack.put(self.startCell)
         prev_cells = {}
@@ -66,77 +65,40 @@ class Search:
                 "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "N/A"}
-    
-    def checkValidity(self, cell, visitedCell):
-        dim = self.map.shape[0]
-
-        if cell[0] == -1 or cell[1] == -1 or cell[0] == dim or cell[1] == dim:
-            return False
-        elif self.map[cell[0],cell[1]] == 0 or cell in visitedCell:
-            return False
-        
-        return True
-
-        
-    def trackback_neighborCells(self, goalCell, visited, x, y):
-        prevCells = list()
-        cell = list()
-        path = list()
-
-        cell.append((x+1, y))
-        path.append((goalCell - cell[0][0]) + (goalCell - cell[0][1]))
-        
-        cell.append((x, y+1))
-        path.append((goalCell - cell[1][0]) + (goalCell - cell[1][1]))
-        
-        cell.append((x-1, y))
-        path.append((goalCell - cell[2][0]) + (goalCell - cell[2][1]))
-        
-        cell.append((x, y-1))
-        path.append((goalCell - cell[3][0]) + (goalCell - cell[3][1]))
-        
-        for i in range(4):
-           low = path.index(min(path))
-           path.pop(low)
-           currentCell = cell.pop(low)
-           if(Search.checkValidity(current_map, currentCell, visited)) :
-               prevCells.append(currentCell)
-        prevCells.reverse()
-        return prevCells
         
 
-    def improved_dfs_algo(self):
-        dfsFringe = list()
-        dfsFringe.append(self.startCell)
+    def improvedDFS(self):
+        fringe = list()
+        fringe.append(self.startCell)
+        visitedCells = list()
+        visitedCells.append(self.startCell)
         
         prev_cells = {}
-        cellsVisited = list()
-        cellsVisited.append(self.startCell)
         maxFringe = 0
 
-        while dfsFringe:
-            cell = dfsFringe.pop()
-            maxFringe = max(maxFringe, len(dfsFringe))
-            if cell == self.goalCell:
+        while fringe:
+            (i, j) = fringe.pop()
+            maxFringe = max(maxFringe, len(fringe))
+            if (i, j) == self.goalCell:
                 path = self.render_path(prev_cells)
-                return {"Status": "Found Path", "Visited cells": cellsVisited,
-                        "# of Visited Cells": len(cellsVisited), "Path length": len(path), "Path length from Goal": "", 
-                        "Path": path, "Path from Goal": [], "Intersecting Cell": (),
+                return {"Status": "Found Path", "Visited cells": visitedCells,
+                        "# of Visited Cells": len(visitedCells), "Path": path, "Path length": len(path), "Path length from Goal": "", 
+                        "Path from Goal": [], "Intersecting Cell": (),
                         "Max fringe size": (maxFringe)}
-            children = Search.trackback_neighborCells(self.map, self.goalCell[0] - 1, cellsVisited, cell[0], cell[1])
+            children = self.map.prioritization(self.goalCell[0] - 1, visitedCells, i, j)
             if children:
-                for dir in children:
+                for c in children:
                     #if dir not in cellsVisited:
-                    prev_cells[dir] = cell
-                    cellsVisited.append(dir)
-                    dfsFringe.append(dir)
+                    prev_cells[c] = (i, j)
+                    visitedCells.append(c)
+                    fringe.append(c)
 
-        return {"Status": "Unable to find the path", "Visited cells": cellsVisited,
-                "# of Visited Cells": len(cellsVisited), "Path length": "N/A", "Path length from Goal": "", 
+        return {"Status": "Unable to find the path", "Visited cells": visitedCells,
+                "# of Visited Cells": len(visitedCells), "Path length": "N/A", "Path length from Goal": "", 
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "N/A"}
 
-    def bfs_algo(self):
+    def bfsAlgo(self):
 
         stack = queue.Queue()
         visitedCells = set()
@@ -166,7 +128,7 @@ class Search:
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
-    def isIntersecting(intersectionNode, s_fringe, t_fringe):
+    def isIntersecting(self, intersectionNode, s_fringe, t_fringe):
         if intersectionNode == (-1, -1):
             for c in s_fringe:
                 if(c in t_fringe):
@@ -178,18 +140,18 @@ class Search:
 
     def biBFS(self):
 
-        s_visited = []
-        t_visited = []
+        s_visited = list()
+        t_visited = list()
         s_visited.append(self.startCell)
         t_visited.append(self.goalCell)
 
-        s_fringe = []
-        t_fringe = []
+        s_fringe = list()
+        t_fringe = list()
         s_fringe.append(self.startCell)
         t_fringe.append(self.goalCell)
 
-        s_parent = {}
-        t_parent = {}
+        s_parent = dict()
+        t_parent = dict()
 
         intersectNode = (-1, -1)
         maxFringe = 0
@@ -205,7 +167,7 @@ class Search:
                     s_visited.append(dir)
                     s_fringe.append(dir)
 
-            intersectNode = Search.isIntersecting(intersectNode, s_fringe, t_fringe)
+            intersectNode = Search.isIntersecting(self.map, intersectNode, s_fringe, t_fringe)
 
             for dir in self.map.neighborCells(t_cell):
                 if dir not in t_visited:
@@ -213,16 +175,18 @@ class Search:
                     t_visited.append(dir)
                     t_fringe.append(dir)
 
-            intersectNode = Search.isIntersecting(intersectNode, s_fringe, t_fringe)
+            intersectNode = Search.isIntersecting(self.map, intersectNode, s_fringe, t_fringe)
 
             if intersectNode != (-1, -1):
                 print("intersecting at cell:", intersectNode)
                 path = self.render_path_bidir(s_parent, intersectNode)
                 path2 = self.render_path_bidir_fromEnd(t_parent, intersectNode)
                 s_visited.extend(t_visited)
+                intersection = []
+                intersection.append(intersectNode)
                 return {"Status": "Found Path", "Visited cells": s_visited,
                         "# of Visited Cells": len(s_visited), "Path length": len(path), "Path length from Goal": len(path2), 
-                        "Path": path, "Path from Goal": path2, "Intersecting Cell": intersectNode,
+                        "Path": path, "Path from Goal": path2, "Intersecting Cell": intersection,
                         "Max fringe size": (maxFringe)}
 
         return {"Status": "Unable to find the path", "Visited cells": s_visited,
@@ -230,7 +194,7 @@ class Search:
                 "Path": [], "Path from Goal": [], "Intersecting Cell": (),
                 "Max fringe size": "n/a"}
 
-    def a_star_algo(self, heuristic):
+    def A_star(self, heuristic):
         """
         this is for finding the path for A-Star
         return the list of path status, # of visted cells, path, and path length
