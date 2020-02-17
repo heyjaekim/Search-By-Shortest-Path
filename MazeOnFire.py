@@ -7,8 +7,6 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-# Function to generate maze of given dimension. It takes 'p' as the probability of a particular cell being blocked.
-
 
 def renderMaze(size, prob):
 
@@ -17,7 +15,6 @@ def renderMaze(size, prob):
     mat[0, 0] = 1
     mat[size - 1, size - 1] = 1
     return mat
-
 
 def visualizePath(canvas, parentSet, start, goal):
 
@@ -44,9 +41,6 @@ def visualizePath(canvas, parentSet, start, goal):
         plt.show()
 
         return path_length
-
-
-# Function to obtain the length of a path
 
 
 def computePath(pathList, start, goal):
@@ -77,12 +71,12 @@ def findHeuristic(goalCell, cell, h):
 
 
 def inBound(cell):
-    # Check if a cell is in the map
+
     x = cell[0]
     y = cell[1]
     return (0 <= x < size) and (0 <= y < size)
 
-def checkValidNeighbors(maze, neighbors, neighbor, fringe):
+def checkCellValue(maze, neighbors, neighbor, fringe):
     if maze[neighbor] != -1 and maze[neighbor] != 0 and neighbor not in fringe:
         fringe.append(neighbor)
     return fringe
@@ -98,8 +92,6 @@ def neighborCells(cell):
             if maze[i, j] == 1:
                 neighborCells.add((i, j))
     return neighborCells
-
-# Function to generate neighbors of a cell for fire.
 
 
 def addPotentialFireCells(cell):
@@ -130,7 +122,7 @@ def A_star(maze, startCell, goalCell, h):
     cellsVisited.add(startCell)
 
     while not priorityQ.empty():
-        cell = priorityQ.get()  # referring to the curernt cell
+        cell = priorityQ.get() 
         cell = cell[1]
         maxFringe = max(maxFringe, priorityQ.qsize())
 
@@ -162,9 +154,8 @@ def validPath(maze, cell, visited):
     return True
 
 
-def getMinDistsFromFire(cell, manhattanDists, fireCells, cells, safeDist):
+def getMinDist(cell, manhattanDists, fireCells, cells, safeDist):
     for f in fireCells:
-        # manhattan distances
         manhattanDists.append(abs(f[0]-cell[0]) + abs(f[1]-cell[1]))
     minDist = 0
     if manhattanDists:
@@ -174,9 +165,6 @@ def getMinDistsFromFire(cell, manhattanDists, fireCells, cells, safeDist):
     cells.append(cell)
     return cells, safeDist
 
-# Function to prioritize children based on the distance to the goal and distance from fire.
-
-
 def prioritization(maze, visited, x, y, fireCells):
     priorities = list()
     cells = list()
@@ -185,22 +173,22 @@ def prioritization(maze, visited, x, y, fireCells):
     manhattanDists = list()
     cell = (x, y+1)
     if(validPath(maze, cell, visited)):
-        cells, dist = getMinDistsFromFire(cell, manhattanDists, fireCells, cells, dist)
+        cells, dist = getMinDist(cell, manhattanDists, fireCells, cells, dist)
 
     manhattanDists = list()
     cell = (x+1, y)
     if(validPath(maze, cell, visited)):
-        cells, dist = getMinDistsFromFire(cell, manhattanDists, fireCells, cells, dist)
+        cells, dist = getMinDist(cell, manhattanDists, fireCells, cells, dist)
 
     manhattanDists = list()
     cell = (x, y-1)
     if(validPath(maze, cell, visited)):
-        cells, dist = getMinDistsFromFire(cell, manhattanDists, fireCells, cells, dist)
+        cells, dist = getMinDist(cell, manhattanDists, fireCells, cells, dist)
 
     manhattanDists = list()
     cell = (x-1, y)
     if(validPath(maze, cell, visited)):
-        cells, dist = getMinDistsFromFire(cell, manhattanDists, fireCells, cells, dist)
+        cells, dist = getMinDist(cell, manhattanDists, fireCells, cells, dist)
 
     for i in range(len(dist)):
         val = dist.index(min(dist))
@@ -210,8 +198,6 @@ def prioritization(maze, visited, x, y, fireCells):
 
     priorities.reverse()
     return priorities
-# Function to implement search to stay away from all fire cells.
-
 
 def fireStrategyOne(maze, start, goal, fireStart, q):
 
@@ -221,9 +207,6 @@ def fireStrategyOne(maze, start, goal, fireStart, q):
     visited.append(start)
     btList = {}  # back tracking list
 
-    maxFringe = 0
-
-    # start fire
     maze[fireStart] = -1
     fireCells = list()
     fireCells.append(fireStart)
@@ -232,16 +215,15 @@ def fireStrategyOne(maze, start, goal, fireStart, q):
 
     while fringe:
         (i, j) = fringe.pop()
-
-        if goal in fireCells:    # Goal is on fire
+        #runner's goal is on fire - error
+        if goal in fireCells:    
             return 3, (i, j), btList, fireCells
-
-        if (i, j) in fireCells:    # Runner location is on fire
+        #runner's current location is on fire - error
+        if (i, j) in fireCells:    
             return 2, (i, j), btList, fireCells
 
-        maxFringe = max(maxFringe, len(fringe))
-
-        if (i, j) == goal:    # to check if the goal state is found
+        #valid answer for runner to reach to the goal
+        if (i, j) == goal:    
             return 1, goal, btList, fireCells
 
         # Generating and adding child nodes in fringe
@@ -255,10 +237,9 @@ def fireStrategyOne(maze, start, goal, fireStart, q):
         # Adding neighbors to the fringe
         while fireCells:
             neighbors = addPotentialFireCells(fireCells.pop())
-
             while neighbors:
                 neighbor = neighbors.pop()
-                potFireCells = checkValidNeighbors(maze, neighbors, neighbor, potFireCells)
+                potFireCells = checkCellValue(maze, neighbors, neighbor, potFireCells)
 
 
         listCopy = potFireCells.copy()
@@ -269,7 +250,7 @@ def fireStrategyOne(maze, start, goal, fireStart, q):
 
             for v in neighbors:
                 if (maze[v] == -1):
-                    k = k+1
+                    k += 1
 
             prob = 1 - pow(1-q, k)
             if(random.uniform(0, 1) < prob):  # If the cell catches fire
@@ -290,39 +271,32 @@ p = 0.2
 q = 0.1
 start = (0, 0)
 goal = (size - 1, size - 1)
-fire_start = (random.randint(0, size), random.randint(0, size))
+fire_start = (random.randint(1,size-1),random.randint(1,size-1))
 print(fire_start)
 #fire_goal = (size-1, 0)
 
 idAstar = 0
-
 while not idAstar:
     maze = renderMaze(size, p)
-    idAstar, pathSet = A_star(
-        maze, start, goal, "manhattan")
+    idAstar, pathSet = A_star(maze, start, goal, "manhattan")
 
-idr, runnerCoord, pathSet_fire, fireCells = fireStrategyOne(
-    maze, start, goal, fire_start, q)
+idr, runnerCoord, pathSet_fire, fireCells = fireStrategyOne(maze, start, goal, fire_start, q)
 print("Time taken for strategy 1" + str(time.time()-start_time))
 canvas = maze*100
 visualizePath(canvas, pathSet, start, goal)
 
 # Function to implement search to stay away from new cells on fire.
-
 def fireStrategyTwo(maze, start, goal, fire_start, q):
 
     fringe = list()
     fringe.append(start)
     visited = list()
     visited.append(start)
-    btList = {}    # To store pointers from children to their parents. It is useful for backtracking the path
-
-    maxFringe = 0
-
-    maze[0][size-1] = -1  # Intial condition - fire on upper right corner
+    btList = {}  
+    maze[fire_start] = -1  
 
     fireCells = list()
-    fireCells.append((0, size-1))
+    fireCells.append(fire_start)
     potFireFringe = list()
     newFire = list()
     while fringe:
@@ -332,7 +306,7 @@ def fireStrategyTwo(maze, start, goal, fire_start, q):
 
             while neighbors:
                 neighbor = neighbors.pop()
-                potFireFringe = checkValidNeighbors(maze, neighbors, neighbor, potFireFringe)
+                potFireFringe = checkCellValue(maze, neighbors, neighbor, potFireFringe)
 
         copyPotFireFringe = potFireFringe.copy()
         while copyPotFireFringe:
@@ -342,7 +316,7 @@ def fireStrategyTwo(maze, start, goal, fire_start, q):
 
             for v in neighbors:
                 if (maze[v] == -1):
-                    k = k+1
+                    k += 1
 
             fireProb = 1 - pow(1-q, k)
             if(random.uniform(0, 1) < fireProb):
@@ -360,9 +334,7 @@ def fireStrategyTwo(maze, start, goal, fire_start, q):
         if (i, j) in fireCells:
             return 2, (i, j), btList, fireCells
 
-        maxFringe = max(maxFringe, len(fringe))
-
-        if (i, j) == goal:    # to check if the goal state is found
+        if (i, j) == goal:   
             return 1, goal, btList, fireCells
 
         # Generating priorities for min distance from firecells and added into priorities to append on fringe, btlist, and visited.
@@ -379,7 +351,7 @@ start_time = time.time()
 size = 100
 p = 0.2
 q = 0.1
-fire_start = (random.randint(0, size), random.randint(0, size))
+fire_start = (random.randint(1,size-1),random.randint(1,size-1))
 print(fire_start)
 
 idAstar = 0
@@ -400,13 +372,13 @@ visualizePath(maze_temp, pathSet, start, goal)
 
     
 def getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited):
-    
+    dist.append(0)
+    xCoord = size-1-cell[0]
+    yCoord = size-1-cell[1]
     for i in neighbors:
         if validPath(maze, i, visited):
             dist[len(dist)-1] += 1
-    xCoord = size-1-cell[0]
-    yCoord = size-1-cell[1]
-    dist[len(dist)-1] = xCoord + yCoord - dist[len(dist)-1]
+        dist[len(dist)-1] = xCoord + yCoord - dist[len(dist)-1]
     cells.append(cell)
     return cells, dist    
 
@@ -417,31 +389,22 @@ def prioritizationTwo(maze, visited, x, y):
     cells = list()
     dist = list()
 
-    cell = ((x+1, y))
-    neighbors = [(x+1, y+1), (x+2, y), (x+1, y-1)]
-    if(validPath(maze, cell, visited)):
-        dist.append(0)
-        cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
-
-    cell = ((x, y+1))
+    cell = (x, y+1)
     neighbors = [(x+1, y+1), (x, y+2), (x-1, y+1)]
     if(validPath(maze, cell, visited)):
-        dist.append(0)
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
-
-
-    cell = ((x-1, y))
-    neighbors = [(x-1, y+1), (x-2, y), (x-1, y-1)]
+    cell = (x+1, y)
+    neighbors = [(x+1, y+1), (x+2, y), (x+1, y-1)]
     if(validPath(maze, cell, visited)):
-        dist.append(0)
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
-
-    cell = ((x, y-1))
+    cell = (x, y-1)
     neighbors = [(x+1, y-1), (x, y-2), (x-1, y-1)]
     if(validPath(maze, cell, visited)):
-        dist.append(0)
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
-
+    cell = (x-1, y)
+    neighbors = [(x-1, y+1), (x-2, y), (x-1, y-1)]
+    if(validPath(maze, cell, visited)):
+        cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
     for i in range(len(dist)):
         ind = dist.index(min(dist))
         dist.pop(ind)
@@ -450,7 +413,6 @@ def prioritizationTwo(maze, visited, x, y):
 
     priorities.reverse()
     return priorities
-
 
 def fireNeighborSearch(maze, start, goal, fire_start, q):
 
@@ -491,13 +453,12 @@ def fireNeighborSearch(maze, start, goal, fire_start, q):
                 fringe.append(p)
                 visited.append(p)
 
-        if fireCells:
-            while fireCells:
-                neighbours = addPotentialFireCells(fireCells.pop())
-                while neighbours:
-                    neighbor = neighbours.pop()
-                    if maze[neighbor] != -1 and maze[neighbor] != 0 and neighbor not in potFireFringe:
-                        potFireFringe.append(neighbor)
+        while fireCells:
+            neighbours = addPotentialFireCells(fireCells.pop())
+            while neighbours:
+                neighbor = neighbours.pop()
+                if maze[neighbor] != -1 and maze[neighbor] != 0 and neighbor not in potFireFringe:
+                    potFireFringe.append(neighbor)
 
         copyPotFireFringe = potFireFringe.copy()
         while copyPotFireFringe:
@@ -507,7 +468,7 @@ def fireNeighborSearch(maze, start, goal, fire_start, q):
 
             for v in neighbours:
                 if (maze[v] == -1):
-                    k = k+1
+                    k += 1
 
             probability = 1 - pow(1-q, k)
 
@@ -528,7 +489,7 @@ start_time = time.time()
 size = 100
 p = 0.2
 q = 0.2
-fire_start = (random.randint(0, size), random.randint(0, size))
+fire_start = (random.randint(1,size-1),random.randint(1,size-1))
 print(fire_start)
 idAstar = 0
 is_fire_reached = 0
@@ -551,32 +512,27 @@ visualizePath(maze_temp, pathSet, start, goal)
 
 # Function to check the success rate of the new algorithm
 
-def success_rate_new(dim, p, n_trials):
+def success_rate_new(size, p, t):
   
     probability_solvable = []
-    
     for q in range(0, 11, 1):
-
         q = q/10.0
-        success = 0
+        successCount = 0
         
-        for i in range(n_trials):
-          
+        for i in range(t):
             idAstar = 0
-
             while not idAstar:
-                maze = renderMaze(dim, p)
+                maze = renderMaze(size, p)
                 idAstar, pathList = A_star(maze, start, goal , "manhattan")
-
-            is_reached, runnerCoord, pathList_fire, fire_cells = fireStrategyOne(maze, start, goal, fire_start, q)
-            
-            if(is_reached == 1):
-                success = success + 1   
+                print(str(idAstar))
+            result, runnerCoord, pathList_fire, fireCell = fireStrategyTwo(maze, start, goal, fire_start, q)
+            if(result == 1):
+                successCount+=1   
             else :
                 continue
             
-        probability_solvable.append(success/n_trials)
-        print("Success for q = " + str(q) + " is " + str(success))
+        probability_solvable.append(successCount/t)
+        print("Success for q = " + str(q) + " is " + str(successCount))
 
     print(probability_solvable)
     x = np.arange(0,1.1,0.1)
@@ -584,20 +540,16 @@ def success_rate_new(dim, p, n_trials):
     plt.clf()
     plt.cla()
     plt.close()
-    
     plt.bar(x, probability_solvable, width = 0.05 )
     
     plt.xlabel("q")
     plt.ylabel("Probability of success")
-    plt.title("Density vs solvability for dim = " + str(dim) + ", #trials = "+ str(n_trials))
+    plt.title("Density vs solvability for dim = " + str(size) + ", #trials = "+ str(t))
     plt.xticks(x)
     plt.show()
 
-
-dim = 50
-p = 0.2
+size = 60
 start = (0, 0)
 goal = (size - 1, size - 1)
-fire_start = (random.randint(0,size),random.randint(0,size))
-print(fire_start)
+fire_start = (random.randint(1,size-1),random.randint(1,size-1))
 success_rate_new(size, p, 50)

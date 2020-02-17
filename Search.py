@@ -7,7 +7,6 @@ from Map import Map
 class Search:
     def __init__(self, maze):
         self.map = maze
-        
         self.startCell = (0, 0)
         self.goalCell = (maze.size - 1, maze.size - 1)
 
@@ -39,7 +38,7 @@ class Search:
     def dfsAlgo(self):
         dfsStack = queue.LifoQueue()
         dfsStack.put(self.startCell)
-        prev_cells = {}
+        parentDict = {}
         cellsVisited = set()
         cellsVisited.add(self.startCell)
         maxFringe = 0
@@ -48,7 +47,7 @@ class Search:
             cell = dfsStack.get()
             maxFringe = max(maxFringe, dfsStack.qsize())
             if cell == self.goalCell:
-                path = self.render_path(prev_cells)
+                path = self.render_path(parentDict)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
                         "# of Visited Cells": len(cellsVisited), "Path length": len(path), "Path length from Goal": "", 
                         "Path": path, "Path from Goal": [], "Intersecting Cell": (),
@@ -56,7 +55,7 @@ class Search:
 
             for dir in self.map.neighborCells(cell):
                 if dir not in cellsVisited:
-                    prev_cells[dir] = cell
+                    parentDict[dir] = cell
                     cellsVisited.add(dir)
                     dfsStack.put(dir)
 
@@ -72,14 +71,14 @@ class Search:
         visitedCells = list()
         visitedCells.append(self.startCell)
         
-        prev_cells = {}
+        parentDict = {}
         maxFringe = 0
 
         while fringe:
             (i, j) = fringe.pop()
             maxFringe = max(maxFringe, len(fringe))
             if (i, j) == self.goalCell:
-                path = self.render_path(prev_cells)
+                path = self.render_path(parentDict)
                 return {"Status": "Found Path", "Visited cells": visitedCells,
                         "# of Visited Cells": len(visitedCells), "Path": path, "Path length": len(path), "Path length from Goal": "", 
                         "Path from Goal": [], "Intersecting Cell": (),
@@ -88,7 +87,7 @@ class Search:
             if children:
                 for c in children:
                     #if dir not in cellsVisited:
-                    prev_cells[c] = (i, j)
+                    parentDict[c] = (i, j)
                     visitedCells.append(c)
                     fringe.append(c)
 
@@ -101,7 +100,7 @@ class Search:
 
         stack = queue.Queue()
         visitedCells = set()
-        parentSet = {}
+        parentDict = {}
         stack.put(self.startCell)
         visitedCells.add(self.startCell)
         maxFringe = 0
@@ -110,7 +109,7 @@ class Search:
             cell = stack.get()
             maxFringe = max(maxFringe, stack.qsize())
             if cell == self.goalCell:
-                path = self.render_path(parentSet)
+                path = self.render_path(parentDict)
                 return {"Status": "Found Path", "Visited cells": visitedCells,
                 "# of Visited Cells": len(visitedCells), "Path": path, "Path length": len(path), "Path length from Goal": "", 
                         "Path from Goal": [], "Intersecting Cell": (),
@@ -118,7 +117,7 @@ class Search:
 
             for dir in self.map.neighborCells(cell):
                 if dir not in visitedCells:
-                    parentSet[dir] = cell
+                    parentDict[dir] = cell
                     visitedCells.add(dir)
                     stack.put(dir)
 
@@ -199,7 +198,7 @@ class Search:
         return the list of path status, # of visted cells, path, and path length
         """
         priorityQ = queue.PriorityQueue()
-        parentCellSet = {}
+        parentDict = {}
         mincost = {}
         cellsVisited = set()
         maxFringe = 0
@@ -214,7 +213,7 @@ class Search:
             maxFringe = max(maxFringe, priorityQ.qsize())
 
             if cell == self.goalCell:
-                path = self.render_path(parentCellSet)
+                path = self.render_path(parentDict)
                 return {"Status": "Found Path", "Visited cells": cellsVisited,
                         "# of Visited Cells": len(cellsVisited), 
                         "Path": path, "Path length": len(path), "Path length from Goal": "", 
@@ -226,7 +225,7 @@ class Search:
                 # or new_cost < cost_so_far[next_cell]:
                 if dir not in cellsVisited:
                     mincost[dir] = newCost
-                    parentCellSet[dir] = cell
+                    parentDict[dir] = cell
                     cellsVisited.add(dir)
 
                     priority = newCost + self.findHeuristic(dir, heuristic)
@@ -245,61 +244,3 @@ class Search:
             return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
         elif heuristic == "manhattan":
             return abs(x1 - x2) + abs(y1 - y2)
-
-'''
-current_map = Map(100, 0.2)
-
-print("--------------------------------\nUsing DFS")
-start_time = time.time()
-current_map.results = Search(current_map).dfs_algo()
-current_time = round(time.time() - start_time, 4)
-current_map.print_results()
-print("Time: ", current_time)
-
-print("--------------------------------\nUsing IDFS")
-start_time = time.time()
-current_map.results = Search(current_map).improved_dfs_algo()
-current_time = round(time.time() - start_time, 4)
-current_map.print_results()
-print("Time: ", current_time)
-
-"""
-#algoLists = ["BFS", "DFS", "A_Manhattan", "A_Euclidean", "BD_BFS"]
-#factsLists = ["path_length", "time", "nodes_explored", "max_fringe_size"]
-
-print("--------------------------------\nUsing DFS")
-start_time = time.time()
-current_map.solution = FindSolution(current_map).dfs_algo()
-current_time = round(time.time() - start_time, 4)
-current_map.print_solution()
-print("Time: ", current_time)
-
-print("--------------------------------\nUsing BFS")
-start_time = time.time()
-current_map.solution = FindSolution(current_map).bfs_algo()
-current_time = round(time.time() - start_time, 4)
-current_map.print_solution()
-print("Time: ", current_time)
-
-print("--------------------------------\nUsing A* Euclidean")
-start_time = time.time()
-current_map.solution = FindSolution(current_map).a_star_algo("euclidean")
-current_time = round(time.time() - start_time, 4)
-current_map.print_solution()
-print("Time: ", current_time)
-
-print("--------------------------------\nUsing A* Manhattan")
-start_time = time.time()
-current_map.solution = FindSolution(current_map).a_star_algo("manhattan")
-current_time = round(time.time() - start_time, 4)
-current_map.print_solution()
-print("Time: ", current_time)
-
-print("--------------------------------\nUsing Bi Directional BFS")
-start_time = time.time()
-current_map.solution = FindSolution(current_map).biBFS()
-current_time = round(time.time() - start_time, 4)
-current_map.print_solution()
-print("Time: ", current_time)
-"""
-'''

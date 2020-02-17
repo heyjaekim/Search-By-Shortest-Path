@@ -4,10 +4,7 @@ import math
 from Map import Map
 from Search import Search
 
-try:
-    import simplegui
-except ImportError:
-    import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
+import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
 
 G_COLORS = [["#FFAA00", "#FFCDD2"], 
             ["#2196F3", "#BBDEFB"], 
