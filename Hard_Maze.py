@@ -97,7 +97,7 @@ def bfs(maze):
                 mp[nextNode.loc] = 3
     return False
 
-
+#This is the code to visualize the maze.
   def visualize_Maze(self,maze=None):
         if maze is not None:
             drawMap=maze
@@ -110,11 +110,13 @@ def bfs(maze):
         plt.tight_layout()
         plt.show()
 
+	# We used a genetic algorithm here
 def hard_maze_simulated_annealing(old_maze,new_maze,cur_distance):
-  
+  #We need to create a baseline for comparison. 
 	original_maze[1,1]=original_maze[10,10]=0
 
-	for i in range(200):
+	for i in range(300):
+	#We are doing this for 300 cycles in this case
 	new_maze=original_maze.copy()
 	
 	recomb_maze=new_maze[1:10,1:10]
@@ -129,13 +131,13 @@ def hard_maze_simulated_annealing(old_maze,new_maze,cur_distance):
 		if(newDist>cur_distance):
 			return new_maze
 		
-		old_maze[1,1]=original_maze[6,6]=1
+		old_maze[1,1]=original_maze[10,10]=1
 		
 
 	return old_maze
 
 	visual=visualize_Maze(10,0.3) 
-	# change this
+	
 
 	x=astarLength(visual,manhattan_distance)
 
