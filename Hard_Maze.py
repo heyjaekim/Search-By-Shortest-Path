@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import random
 import heapq
 import bfsAlgo from Search
+import time
 
 
 class HardMaze():
