@@ -7,7 +7,6 @@ from Map import Map
 class Search:
     def __init__(self, maze):
         self.map = maze
-        
         self.startCell = (0, 0)
         self.goalCell = (maze.size - 1, maze.size - 1)
 
