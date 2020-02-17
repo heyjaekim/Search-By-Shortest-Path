@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import random
 import heapq
 import bfsAlgo from Search
+import time
 
 
 class HardMaze():
@@ -119,11 +120,11 @@ def hard_maze_simulated_annealing(old_maze,new_maze,cur_distance):
 	#We are doing this for 300 cycles in this case
 	new_maze=original_maze.copy()
 	
-	recomb_maze=new_maze[1:10,1:10]
+	recomb_maze=new_maze[1:11,1:11]
 	recomb_maze=recomb_maze.flatten()
 	random.shuffle(recomb_maze)
 	recomb_maze=recomb_maze.reshape((10,10))
-	new_maze[1:10,1:10]=recomb_maze
+	new_maze[1:11,1:11]=recomb_maze
 	recomb_maze[new_maze]=old_maze[new_maze]
 	new_maze[1,1]=new_maze[10,10]=1
 	
@@ -137,13 +138,14 @@ def hard_maze_simulated_annealing(old_maze,new_maze,cur_distance):
 	return old_maze
 
 	visual=visualize_Maze(10,0.3) 
+	v1=visual.copy()
 	
 
 	x=astarLength(visual,manhattan_distance)
 
-	if(a==true):
+	if(x is not False):
 	visualize_Maze(bfs(x))
-	visualize_Maze(bfs(visual)
+	visualize_Maze(bfs(v1)
 
 
 
