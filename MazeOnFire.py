@@ -83,6 +83,7 @@ def checkCellValue(maze, cell, fringe):
         fringe.append(cell)
     return fringe
 
+#append the neighbor cells into the cells list
 def neighborCells(cell):
 
     x = cell[0]
@@ -95,7 +96,7 @@ def neighborCells(cell):
                 neighborCells.add((i, j))
     return neighborCells
 
-
+#check if the cell is valid and also append into the list
 def addPotentialFireCells(cell):
 
     potentialFire = []
@@ -372,7 +373,7 @@ maze_temp = maze*100
 print("Time taken for strategy 2: " + str(time.time()-start_time))
 visualizePath(maze_temp, pathSet, start, goal)
 
-    
+#get the min distance from the fire to the cell to get the maximum minimal distance from the fringe
 def getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited):
     dist.append(0)
     xCoord = size-1-cell[0]
@@ -384,7 +385,7 @@ def getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited):
     cells.append(cell)
     return cells, dist    
 
-
+#another priortization function just for the strategy three
 def prioritizationTwo(maze, visited, x, y):
 
     priorities = list()
@@ -416,7 +417,7 @@ def prioritizationTwo(maze, visited, x, y):
     priorities.reverse()
     return priorities
 
-def fireNeighborSearch(maze, start, goal, fire_start, q):
+def fireStrategyThree(maze, start, goal, fire_start, q):
 
     fringe = list()
     fringe.append(start)
@@ -500,7 +501,7 @@ while not idAstar:
     maze = renderMaze(size, p)
     idAstar, pathSet = A_star(maze, start, goal, "manhattan")
 
-idr, runnerCoord, pathSet_fire, fireCells = fireNeighborSearch(maze, start, goal, fire_start, q)
+idr, runnerCoord, pathSet_fire, fireCells = fireStrategyThree(maze, start, goal, fire_start, q)
 if(idr == 1):
     print("Runner reacehd to the goal without fire.")
 else:
