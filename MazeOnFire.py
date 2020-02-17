@@ -7,7 +7,7 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-
+#function for rendering the maze
 def renderMaze(size, prob):
 
     mat = np.random.uniform(size=[size, size])
@@ -16,6 +16,7 @@ def renderMaze(size, prob):
     mat[size - 1, size - 1] = 1
     return mat
 
+#visualizing the path for runner and the fire cells
 def visualizePath(canvas, parentSet, start, goal):
 
     prev_node = goal
@@ -42,7 +43,7 @@ def visualizePath(canvas, parentSet, start, goal):
 
         return path_length
 
-
+#computing the path from the start to the end
 def computePath(pathList, start, goal):
 
     path = list()
@@ -69,16 +70,17 @@ def findHeuristic(goalCell, cell, h):
     elif h == "manhattan":
         return abs(x1 - x2) + abs(y1 - y2)
 
-
+#check if it's a valid inbound
 def inBound(cell):
 
     x = cell[0]
     y = cell[1]
     return (0 <= x < size) and (0 <= y < size)
 
-def checkCellValue(maze, neighbors, neighbor, fringe):
-    if maze[neighbor] != -1 and maze[neighbor] != 0 and neighbor not in fringe:
-        fringe.append(neighbor)
+#check if the cell is a valid value
+def checkCellValue(maze, cell, fringe):
+    if cell not in fringe and maze[cell] != -1 and maze[cell] != 0:
+        fringe.append(cell)
     return fringe
 
 def neighborCells(cell):
@@ -239,7 +241,7 @@ def fireStrategyOne(maze, start, goal, fireStart, q):
             neighbors = addPotentialFireCells(fireCells.pop())
             while neighbors:
                 neighbor = neighbors.pop()
-                potFireCells = checkCellValue(maze, neighbors, neighbor, potFireCells)
+                potFireCells = checkCellValue(maze, neighbor, potFireCells)
 
 
         listCopy = potFireCells.copy()
@@ -306,7 +308,7 @@ def fireStrategyTwo(maze, start, goal, fire_start, q):
 
             while neighbors:
                 neighbor = neighbors.pop()
-                potFireFringe = checkCellValue(maze, neighbors, neighbor, potFireFringe)
+                potFireFringe = checkCellValue(maze, neighbor, potFireFringe)
 
         copyPotFireFringe = potFireFringe.copy()
         while copyPotFireFringe:
