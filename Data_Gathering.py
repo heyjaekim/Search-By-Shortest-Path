@@ -9,7 +9,7 @@ from Search import Search
 DIM = 100
 PROB = 0.00
 
-ITERATIONS = 1000
+ITERATIONS = 100
 #current_map = Map(DIM, PROB)
 total_solutions = 0
 average_solved = 0
