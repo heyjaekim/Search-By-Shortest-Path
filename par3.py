@@ -112,18 +112,18 @@ def bfs(maze):
 
 def hard_maze_simulated_annealing(old_maze,new_maze,cur_distance):
   
-	original_maze[1,1]=original_maze[5,5]=0
+	original_maze[1,1]=original_maze[10,10]=0
 
 	for i in range(200):
 	new_maze=original_maze.copy()
 	
-	recomb_maze=new_maze[1:6,1:6]
+	recomb_maze=new_maze[1:10,1:10]
 	recomb_maze=recomb_maze.flatten()
 	random.shuffle(recomb_maze)
-	recomb_maze=recomb_maze.reshape((5,5))
-	new_maze[1:6,1:6]=recomb_maze
+	recomb_maze=recomb_maze.reshape((10,10))
+	new_maze[1:10,1:10]=recomb_maze
 	recomb_maze[new_maze]=old_maze[new_maze]
-	new_maze[1,1]=new_maze[6,6]=1
+	new_maze[1,1]=new_maze[10,10]=1
 	
 	newDist=astarLength(new_maze)
 		if(newDist>cur_distance):
