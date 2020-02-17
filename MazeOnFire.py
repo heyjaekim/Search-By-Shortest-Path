@@ -374,8 +374,7 @@ visualizePath(maze_temp, pathSet, start, goal)
 def getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited):
     dist.append(0)
     for i in neighbors:
-        if validPath(maze, i, visited):
-            dist[len(dist)-1] += 1
+        dist[len(dist)-1] += 1
     xCoord = size-1-cell[0]
     yCoord = size-1-cell[1]
     dist[len(dist)-1] = xCoord + yCoord - dist[len(dist)-1]
@@ -390,19 +389,19 @@ def prioritizationTwo(maze, visited, x, y):
     dist = list()
 
     cell = (x, y+1)
-    neighbors = [(x+1, y+1), (x, y+2), (x-1, y+1)]
+    neighbors = [(x+3, y+3), (x, y+4), (x-3, y+3)]
     if(validPath(maze, cell, visited)):
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
     cell = (x+1, y)
-    neighbors = [(x+1, y+1), (x+2, y), (x+1, y-1)]
+    neighbors = [(x+3, y+3), (x+4, y), (x+3, y-3)]
     if(validPath(maze, cell, visited)):
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
     cell = (x, y-1)
-    neighbors = [(x+1, y-1), (x, y-2), (x-1, y-1)]
+    neighbors = [(x+3, y-3), (x, y-4), (x-3, y-3)]
     if(validPath(maze, cell, visited)):
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
     cell = (x-1, y)
-    neighbors = [(x-1, y+1), (x-2, y), (x-1, y-1)]
+    neighbors = [(x-3, y+3), (x-4, y), (x-3, y-3)]
     if(validPath(maze, cell, visited)):
         cells, dist = getMinDistsFromFire(maze, dist, neighbors, cells, cell, visited)
     for i in range(len(dist)):
@@ -525,7 +524,7 @@ def success_rate_new(size, p, t):
             while not idAstar:
                 maze = renderMaze(size, p)
                 idAstar, pathList = A_star(maze, start, goal , "manhattan")
-            result, runnerCoord, pathList_fire, fireCell = fireStrategyTwo(maze, start, goal, fire_start, q)
+            result, runnerCoord, pathList_fire, fireCell = fireNeighborSearch(maze, start, goal, fire_start, q)
             if(result == 1):
                 successCount+=1   
             else :
