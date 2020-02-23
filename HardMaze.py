@@ -117,20 +117,20 @@ def isValidCell(maze, cell, visited):
 
 def visualizePath(canvas, parentSet, start, goal):
 
-    prev_node = goal
-    path = [prev_node]
-    canvas[prev_node] = 25
+    prevCell = goal
+    path = [prevCell]
+    canvas[prevCell] = 25
 
     if bool(parentSet):
-        while(parentSet[prev_node] != start):
-            current_node = prev_node
-            prev_node = parentSet[(current_node)]
-            path.append(prev_node)
-            canvas[prev_node] = 50
+        while(parentSet[prevCell] != start):
+            current_node = prevCell
+            prevCell = parentSet[(current_node)]
+            path.append(prevCell)
+            canvas[prevCell] = 50
 
-        path.append(parentSet[prev_node])
+        path.append(parentSet[prevCell])
         path.reverse()
-        canvas[parentSet[prev_node]] = 25
+        canvas[parentSet[prevCell]] = 25
 
         path_length = str(len(path))
 
@@ -264,7 +264,7 @@ def computeCost(maze, start, goal, h):
     if(id_arr_goal):
         numPathLength, path = pathLength(parentDict, start, goal)
         # computed cost by adding the length of the path and the number of the nodes counted
-        cost = (numPathLength) + (maxFringe) 
+        cost = numPathLength + maxFringe 
     else:
         cost = 0
         path = [(0, 1)]
@@ -298,8 +298,6 @@ def hillClimbing(p, num_loops, h):
         count = 0
 
         '''Iteration for num_restarts, this is loop for DFS algorithm by maximal fringe size'''
-        #TODO: For maximal fringe, we are computing new_cost by using computeCost, however, we still need to get the hardest maze
-        #and when new_dfs_id is 0, we should have the highest cost of hardest maze among all the computations have made.
         while count < num_loops:
             while True:
                 # Generate this loop for swapping the cell to the block from the path that is already found to get the hardest maze and cost

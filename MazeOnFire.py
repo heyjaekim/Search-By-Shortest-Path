@@ -19,20 +19,20 @@ def renderMaze(size, prob):
 #visualizing the path for runner and the fire cells
 def visualizePath(canvas, parentSet, start, goal):
 
-    prev_node = goal
-    path = [prev_node]
-    canvas[prev_node] = 25
+    prevCell = goal
+    path = [prevCell]
+    canvas[prevCell] = 25
 
     if bool(parentSet):
-        while(parentSet[prev_node] != start):
-            current_node = prev_node
-            prev_node = parentSet[(current_node)]
-            path.append(prev_node)
-            canvas[prev_node] = 50
+        while(parentSet[prevCell] != start):
+            current_node = prevCell
+            prevCell = parentSet[(current_node)]
+            path.append(prevCell)
+            canvas[prevCell] = 50
 
-        path.append(parentSet[prev_node])
+        path.append(parentSet[prevCell])
         path.reverse()
-        canvas[parentSet[prev_node]] = 25
+        canvas[parentSet[prevCell]] = 25
 
         path_length = str(len(path))
 
