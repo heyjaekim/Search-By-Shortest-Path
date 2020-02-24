@@ -90,7 +90,7 @@ def A_star(maze, startCell, goalCell, h):
         maxFringe = max(maxFringe, priorityQ.qsize())
 
         if cell == goalCell:
-            return 1, pathSet, maxFringe
+            return 1, pathSet, len(cellsVisited)
 
         for dir in neighborCells(maze, cell):
             newCost = mincost[cell] + 1
@@ -101,7 +101,7 @@ def A_star(maze, startCell, goalCell, h):
                 priority = newCost + findHeuristic(goalCell, dir, h)
                 priorityQ.put((priority, dir))
 
-    return 0, pathSet, maxFringe
+    return 0, pathSet, len(cellsVisited)
 
 def isValidCell(maze, cell, visited):
 
@@ -462,12 +462,12 @@ start = (0, 0)
 goal = (size-1, size-1)
 
 restarts = 100
-iterations = 3
+iterations = 1
 
 """"###Please Select Your Algorithm that you wnat to implement
 # Options: DFS, IDFS, A_star
 # """
-algorithm = "IDFS"
+algorithm = "A_star"
 final_maze = iterateHC(restarts, iterations, algorithm)
 
 print("\nFINAL HARDEST MAZE:")
